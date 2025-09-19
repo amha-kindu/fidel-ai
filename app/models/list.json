@@ -1,0 +1,7 @@
+[
+    {
+        "id": "fidel-chat-125M",
+        "name": "Fidel Chat 125M",
+        "description": "Basic Decoder-only transformer model pretrained on 10+ GB corpus of the Amharic language"
+    }
+]

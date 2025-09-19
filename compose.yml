@@ -1,0 +1,15 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu # switch to docker/Dockerfile.cuda for GPU
+    env_file: .env
+    ports: ["8000:8000"]
+    
+    # For CUDA build
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - capabilities: [gpu]
+    # runtime: nvidia

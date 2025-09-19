@@ -1,0 +1,28 @@
+[project]
+name = "fidel-fastapi"
+version = "0.1.0"
+description = "OpenAI-compatible API for custom GPT (FastAPI + PyTorch)"
+authors = [
+    {name = "Amha Kindu",email = "amhaznif@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi (>=0.116.2,<0.117.0)",
+    "pydantic (>=2.11.9,<3.0.0)",
+    "gunicorn (>=23.0.0,<24.0.0)",
+    "unicorn[standard] (>=2.1.4,<3.0.0)",
+    "torch (==2.4.0)",
+    "numpy (>=2.3.3,<3.0.0)",
+    "sentencepiece (>=0.2.1,<0.3.0)"
+]
+
+[dependency-groups]
+dev = [
+    "pytest (>=8.4.2,<9.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
