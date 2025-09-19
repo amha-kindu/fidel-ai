@@ -1,6 +1,6 @@
 import multiprocessing
 workers = int(multiprocessing.cpu_count() / 2) or 1
-bind = "0.0.0.0:8000"
+bind = "0.0.0.0:2345"
 accesslog = "-"
 errorlog = "-"
 loglevel = "info"

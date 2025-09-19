@@ -1,12 +1,12 @@
 [project]
-name = "fidel-fastapi"
+name = "fidel-ai"
 version = "0.1.0"
 description = "OpenAI-compatible API for custom GPT (FastAPI + PyTorch)"
 authors = [
     {name = "Amha Kindu",email = "amhaznif@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
     "fastapi (>=0.116.2,<0.117.0)",
     "pydantic (>=2.11.9,<3.0.0)",

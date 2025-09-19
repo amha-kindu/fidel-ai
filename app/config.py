@@ -10,7 +10,7 @@ numpy.random.seed(4321)
 
 class Settings(BaseModel):
     model_id: str = os.getenv("MODEL_ID", "")
-    lora: str = os.getenv("LORA_CKPT", "")
+    lora: bool = bool(os.getenv("LORA", ""))
     tokenizer_path: str = os.getenv("TOKENIZER_PATH", "")
     max_tokens: int = int(os.getenv("MAX_TOKENS", 256))
     temperature: float = float(os.getenv("TEMPERATURE", 0.7))

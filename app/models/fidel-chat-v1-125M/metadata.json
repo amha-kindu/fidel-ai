@@ -1,0 +1,9 @@
+{
+  "embed_dim": 1024,
+  "n_blocks": 6,
+  "vocab_size": 25000,
+  "ff_dim": 4096,
+  "heads": 16,
+  "dropout": 0.2,
+  "seq_len": 1024
+}

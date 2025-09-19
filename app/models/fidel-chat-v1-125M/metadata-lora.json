@@ -1,0 +1,30 @@
+{
+  "embed_dim": 1024,
+  "n_blocks": 6,
+  "vocab_size": 25000,
+  "ff_dim": 4096,
+  "heads": 16,
+  "dropout": 0.1,
+  "seq_len": 1024,
+  "lora_rank": 16,
+  "lora_alpha": 32,
+  "lora_targets": {
+    "decoders": {
+      "type": "ModuleList",
+      "indices": [
+        3,
+        4,
+        5
+      ],
+      "submodules": [
+        "masked_multihead_attention.Wk",
+        "masked_multihead_attention.Wq",
+        "masked_multihead_attention.Wv",
+        "masked_multihead_attention.Wo",
+        "feed_forward.linear1",
+        "feed_forward.linear2"
+      ]
+    }
+  },
+  "lora_dropout": 0.1
+}
