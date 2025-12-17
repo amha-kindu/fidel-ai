@@ -26,24 +26,24 @@ class InferenceEngine:
             if self.use_kv_cache
         ]
         
-        self.pad_token = self.TOKENIZER.PieceToId("[PAD]")
-        self.unk_token = self.TOKENIZER.PieceToId("[UNK]")
-        self.bot_token = self.TOKENIZER.PieceToId("[BOT]")
-        self.stop_token = self.TOKENIZER.PieceToId("[STOP]")
-        self.user_token = self.TOKENIZER.PieceToId("[USER]")
-        self.system_token = self.TOKENIZER.PieceToId("[SYSTEM]")
+        self.pad_token = self.tokenizer.PieceToId("[PAD]")
+        self.unk_token = self.tokenizer.PieceToId("[UNK]")
+        self.bot_token = self.tokenizer.PieceToId("[BOT]")
+        self.stop_token = self.tokenizer.PieceToId("[STOP]")
+        self.user_token = self.tokenizer.PieceToId("[USER]")
+        self.system_token = self.tokenizer.PieceToId("[SYSTEM]")
         
-        self.conv = Conversation(system_prompt)
-        self.bot_token = self.TOKENIZER.PieceToId("[BOT]")
-        self.user_token = self.TOKENIZER.PieceToId("[USER]")
-        self.system_token = self.TOKENIZER.PieceToId("[SYSTEM]")
+        self.conv = Conversation(os.environ.get("SYSTEM_PROMPT", ""))
+        self.bot_token = self.tokenizer.PieceToId("[BOT]")
+        self.user_token = self.tokenizer.PieceToId("[USER]")
+        self.system_token = self.tokenizer.PieceToId("[SYSTEM]")
         
         self.system_tokens = []
         if self.conv.system_text:
             self.conv.system_text = self.PREPROCESSOR.execute(self.conv.system_text)
             self.system_tokens.extend([
                 self.system_token,
-                *self.TOKENIZER.Encode(self.conv.system_text, out_type=int)
+                *self.tokenizer.Encode(self.conv.system_text, out_type=int)
             ])
         
         self.model.eval()
@@ -97,18 +97,17 @@ class InferenceEngine:
 
     @torch.no_grad()
     def complete(self, token_ids: list[int]) -> Iterator[int]:
+        token_ids = self.system_tokens + token_ids
         temperature = min(self.config.temperature, self.config.max_temp) + 1e-5
         while token_ids and len(token_ids) < self.max_len:
             decoder_input = torch.tensor(
                 [token_ids],
                 dtype=torch.int64
             ).to(DEVICE)
-            
-            decoder_mask = get_casual_mask(decoder_input.size(1)).to(DEVICE)
                         
             with torch.autocast(device_type=DEVICE.type, enabled=AMP):
                 # (1, SEQ_LEN, VOCAB_SIZE)
-                logits: torch.Tensor = self.model(decoder_input, decoder_mask, self.use_kv_cache, self.kv_caches)
+                logits: torch.Tensor = self.model(decoder_input, None, self.use_kv_cache, self.kv_caches)
 
             # (VOCAB_SIZE,)
             # Take logits for the last position and apply temperature scaling

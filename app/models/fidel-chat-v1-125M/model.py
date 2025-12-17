@@ -4,8 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.attention import SDPBackend
 
-from config import *
-from lora import LoRAdapter
+from app.config import *
+from ..lora import LoRAdapter
 from app.kv_cache import SlidingKVCache
 
 

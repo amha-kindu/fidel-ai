@@ -1,4 +1,4 @@
-name: fidel-ai
+name: fidel
 
 services:
   api:
@@ -10,31 +10,13 @@ services:
       # Ensure CORS allows the WebUI origin
       - ALLOW_ORIGINS=http://localhost:2345
     ports:
-      - "8080:8080"
+      - "7890:7890"
     networks: [appnet]
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:7890/health"]
       interval: 30s
       timeout: 3s
       retries: 5
-
-  webui:
-    image: ghcr.io/open-webui/open-webui:latest
-    container_name: open-webui
-    depends_on:
-      api:
-        condition: service_healthy
-    ports:
-      - "2345:2345"   # Web UI available at http://localhost:2345
-    environment:
-      # Wire Open WebUI to your API (OpenAI-compatible)
-      - OPENAI_API_BASE_URL=http://api:8080/v1
-      - OPENAI_API_KEY=dev-key  # your API may ignore this, but WebUI expects a key
-      # Optional: auto-create a connection on first run
-      - WEBUI_NAME=FidelAI
-    volumes:
-      - webui_data:/app/backend/data
-    networks: [appnet]
 
 networks:
   appnet: {}

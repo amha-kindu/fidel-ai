@@ -11,10 +11,9 @@ dependencies = [
     "fastapi (>=0.116.2,<0.117.0)",
     "pydantic (>=2.11.9,<3.0.0)",
     "gunicorn (>=23.0.0,<24.0.0)",
-    "unicorn[standard] (>=2.1.4,<3.0.0)",
-    "torch (==2.4.0)",
     "numpy (>=2.3.3,<3.0.0)",
-    "sentencepiece (>=0.2.1,<0.3.0)"
+    "sentencepiece (>=0.2.1,<0.3.0)",
+    "uvicorn (>=0.37.0,<0.38.0)",
 ]
 
 [dependency-groups]

@@ -17,8 +17,10 @@ RUN python3 -m pip install --upgrade pip
 
 WORKDIR /srv
 COPY pyproject.toml poetry.lock ./
-RUN poetry install --no-root && poetry run pip install --upgrade pip
-RUN poetry add torch --extras cuda121 -vv
+RUN python3 -m pip install --upgrade pip poetry
+RUN poetry lock
+RUN poetry install --no-root
+RUN poetry add torch@2.4.1 --extras cuda121 -vv
 
 COPY docker/gunicorn_conf.py /srv/gunicorn_conf.py
 COPY docker/entrypoint.sh /entrypoint.sh
@@ -29,6 +31,6 @@ COPY app /srv/app
 ENV NVIDIA_VISIBLE_DEVICES=all \
 NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
-EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=3s --retries=5 CMD curl -fsS http://localhost:8080/health || exit 1
+EXPOSE 7890
+HEALTHCHECK --interval=30s --timeout=3s --retries=5 CMD curl -fsS http://localhost:7890/health || exit 1
 CMD ["poetry", "run", "gunicorn", "app.main:app", "-k", "uvicorn.workers.UvicornWorker", "-c", "/srv/gunicorn_conf.py"]

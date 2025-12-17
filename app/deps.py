@@ -6,7 +6,7 @@ import importlib
 from threading import Lock
 import sentencepiece as spm
 
-from config import SETTINGS, DEVICE, AMP
+from .config import SETTINGS, DEVICE, AMP, ModelConfig, ModelWithLoRAConfig, DEFAULT_INFERENCE_CONFIG
 from .logging import LOGGER
 from .models.lora import LoRAdapter
 from .inference import InferenceEngine
@@ -14,24 +14,32 @@ from .preprocessor import AmharicPreprocessor
 
 
 def get_model():
-    base_model_dir = os.path.join("models", SETTINGS.model_id, "checkpoint.pt")
-    base_metadata = os.path.join("models", SETTINGS.model_id, "metadata.json")
+    cwd = os.getcwd()
+    base_model_dir = os.path.join(cwd, "app", "models", SETTINGS.model_id, "checkpoint.pt")
+    base_metadata = os.path.join(cwd, "app", "models", SETTINGS.model_id, "metadata.json")
     LOGGER.info(f"Loading checkpoint from {base_model_dir}...")
     base_weights: dict = torch.load(base_model_dir, map_location=DEVICE, weights_only=False)
     with open(base_metadata, 'r') as f:
         base_metadata = json.load(f)
+        model_config = ModelConfig(**base_metadata)
     
     model_module = importlib.import_module(f'app.models.{SETTINGS.model_id}.model')
     GPTmodel = getattr(model_module, 'GPTmodel')
     
     if SETTINGS.lora:
-        lora_model_dir = os.path.join("models", SETTINGS.model_id, "checkpoint-lora.pt")
-        lora_metadata_dir = os.path.join("models", SETTINGS.model_id, "metadata-lora.json")
+        lora_model_dir = os.path.join(cwd, "app", "models", SETTINGS.model_id, "checkpoint-lora.pt")
+        lora_metadata_dir = os.path.join(cwd, "app", "models", SETTINGS.model_id, "metadata-lora.json")
         LOGGER.info(f"Loading checkpoint from {lora_model_dir}...")
         lora_weights: dict = torch.load(lora_model_dir, map_location=DEVICE, weights_only=False)
         with open(lora_metadata_dir, 'r') as f:
-            model_config = json.load(f)
+            lora_metadata = json.load(f)
+            model_config = ModelWithLoRAConfig(**lora_metadata)
         base_weights.update(lora_weights)
+    else:
+        update_dir = os.path.join(cwd, "app", 'models', SETTINGS.model_id, "checkpoint-update.pt")
+        LOGGER.info(f"Loading update from {update_dir}...")
+        update_weights: dict = torch.load(update_dir, map_location=DEVICE, weights_only=False)
+        base_weights.update(update_weights)
 
     model: torch.nn.Module = GPTmodel.build(
         model_config,
@@ -56,9 +64,11 @@ def get_model():
     return model
 
 INFERENCE_LOCK = Lock()
-model = get_model().to(DEVICE).eval()
-INFERENCE_ENGINE = InferenceEngine(model, SETTINGS.max_tokens, SETTINGS.temperature, SETTINGS.top_p, SETTINGS.top_k)
 
 TOKENIZER = spm.SentencePieceProcessor()
-TOKENIZER.LoadFromFile(SETTINGS.tokenizer_path)
+TOKENIZER.LoadFromFile(os.path.join(os.getcwd(), "app", SETTINGS.tokenizer_path))
 PREPROCESSOR = AmharicPreprocessor()
+
+model = get_model().to(DEVICE).eval()
+SYSTEM_PROMPT = os.environ.get("SYSTEM_PROMPT", "")
+INFERENCE_ENGINE = InferenceEngine(model, TOKENIZER, system_prompt=SYSTEM_PROMPT)
